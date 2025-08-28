@@ -2,6 +2,23 @@
 
 A clean, modular Android project template to kickstart your next Android application. This starter template comes with a multi-module architecture and an easy setup script to customize it for your project.
 
+## 📋 Using This Template
+
+### Option 1: Use GitHub Template (Recommended)
+1. Click the **"Use this template"** button at the top of this repository
+2. Create your new repository with your desired name
+3. Clone your new repository
+4. Run the setup script (see [Quick Start](#🚀-quick-start))
+
+### Option 2: Manual Clone
+```bash
+git clone https://github.com/yourusername/android-starter.git your-project-name
+cd your-project-name
+rm -rf .git
+git init
+git remote add origin https://github.com/yourusername/your-project-name.git
+```
+
 ## 🏗️ Architecture
 
 This project follows a clean, modular architecture with the following modules:
@@ -22,8 +39,9 @@ cd android-starter
 
 ### 2. Run the Setup Script
 
-Make the setup script executable and run it:
+You can run the setup script in two ways:
 
+#### Interactive Mode
 ```bash
 chmod +x setup.sh
 ./setup.sh
@@ -35,12 +53,38 @@ The setup script will prompt you for:
 - **Package Name**: The main package name for your app module (e.g., "com.company.myapp")
 - **Minimum SDK**: The minimum Android SDK version (default: 26)
 
-#### Example Setup
-
+**Examples:**
 ```bash
 Project Name: (Android Starter) My Awesome App
-Package Name (for app module): (com.example.androidstarter) com.company.myapp
+Package Name: (com.example.androidstarter) com.company.myapp
 Minimum SDK Version: (26) 24
+```
+
+#### Command Line Mode
+```bash
+chmod +x setup.sh
+./setup.sh --name "My Awesome App" --package com.company.myapp --sdk 24 --yes
+```
+
+The script will prompt you for each configuration option.
+
+**Command line options:**
+- `-n, --name PROJECT_NAME` - Set the project name
+- `-p, --package PACKAGE_NAME` - Set the package name (for app module)
+- `-s, --sdk MIN_SDK` - Set the minimum SDK version
+- `-y, --yes` - Skip confirmation prompt
+- `-h, --help` - Show help message
+
+**Examples:**
+```bash
+# Full setup with confirmation
+./setup.sh --name "My App" --package com.company.myapp --sdk 26
+
+# Quick setup without confirmation
+./setup.sh -n "My App" -p com.company.myapp -s 24 -y
+
+# Use some defaults
+./setup.sh --package com.company.myapp --yes
 ```
 
 This will configure your project with:
@@ -75,14 +119,6 @@ android-starter/
 ├── settings.gradle
 └── setup.sh
 ```
-
-## 🎯 Features
-
-- **Multi-module architecture** for better separation of concerns
-- **Automated setup script** for easy project customization
-- **Clean package structure** with proper module namespacing
-- **Cross-platform compatibility** (macOS and Linux)
-- **Input validation** for package names and SDK versions
 
 ## 🤝 Contributing
 

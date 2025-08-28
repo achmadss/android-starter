@@ -17,6 +17,62 @@ CURRENT_PROJECT_NAME="Android Starter"
 CURRENT_PACKAGE_NAME="com.example.androidstarter"
 CURRENT_BASE_PACKAGE="com.example"
 
+# Help function
+show_help() {
+    echo -e "${BLUE}========================================${NC}"
+    echo -e "${BLUE}    Android Starter Project Setup      ${NC}"
+    echo -e "${BLUE}========================================${NC}"
+    echo ""
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -n, --name PROJECT_NAME       Set the project name"
+    echo "  -p, --package PACKAGE_NAME    Set the package name (for app module)"
+    echo "  -s, --sdk MIN_SDK            Set the minimum SDK version"
+    echo "  -y, --yes                    Skip confirmation prompt"
+    echo "  -h, --help                   Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0 --name \"My App\" --package com.company.myapp --sdk 24"
+    echo "  $0 -n \"My App\" -p com.company.myapp -s 24 -y"
+    echo ""
+    echo "Interactive mode (if no arguments provided):"
+    echo "  $0"
+    echo ""
+}
+
+# Parse command line arguments
+SKIP_CONFIRMATION=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -n|--name)
+            NEW_PROJECT_NAME="$2"
+            shift 2
+            ;;
+        -p|--package)
+            NEW_PACKAGE_NAME="$2"
+            shift 2
+            ;;
+        -s|--sdk)
+            NEW_MIN_SDK="$2"
+            shift 2
+            ;;
+        -y|--yes)
+            SKIP_CONFIRMATION=true
+            shift
+            ;;
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}Unknown option: $1${NC}"
+            show_help
+            exit 1
+            ;;
+    esac
+done
+
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}    Android Starter Project Setup      ${NC}"
 echo -e "${BLUE}========================================${NC}"
@@ -96,10 +152,14 @@ echo -e "${GREEN}Data Package:${NC} $NEW_BASE_PACKAGE.data"
 echo -e "${GREEN}Minimum SDK:${NC} $NEW_MIN_SDK"
 echo ""
 
-read -p "Do you want to proceed with these changes? (y/N): " confirm
-if [[ ! $confirm =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}Setup cancelled.${NC}"
-    exit 0
+if [ "$SKIP_CONFIRMATION" = false ]; then
+    read -p "Do you want to proceed with these changes? (y/N): " confirm
+    if [[ ! $confirm =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Setup cancelled.${NC}"
+        exit 0
+    fi
+else
+    echo -e "${GREEN}Proceeding automatically (--yes flag used)...${NC}"
 fi
 
 echo ""

@@ -62,11 +62,11 @@ echo -e "${GREEN}Please provide the following information:${NC}"
 echo ""
 
 # Project Name
-NEW_PROJECT_NAME=$(prompt_with_default "Project Name:" "$DEFAULT_PROJECT_NAME")
+NEW_PROJECT_NAME=$(prompt_with_default "Project Name" "$DEFAULT_PROJECT_NAME")
 
 # Package Name with validation
 while true; do
-    NEW_PACKAGE_NAME=$(prompt_with_default "Package Name:" "$DEFAULT_PACKAGE_NAME")
+    NEW_PACKAGE_NAME=$(prompt_with_default "Package Name" "$DEFAULT_PACKAGE_NAME")
     if validate_package_name "$NEW_PACKAGE_NAME"; then
         break
     fi
@@ -77,7 +77,7 @@ NEW_BASE_PACKAGE=$(echo "$NEW_PACKAGE_NAME" | sed 's/\.[^.]*$//')
 
 # Minimum SDK with validation
 while true; do
-    NEW_MIN_SDK=$(prompt_with_default "Minimum SDK Version:" "$DEFAULT_MIN_SDK")
+    NEW_MIN_SDK=$(prompt_with_default "Minimum SDK Version" "$DEFAULT_MIN_SDK")
     if validate_sdk_version "$NEW_MIN_SDK"; then
         break
     fi

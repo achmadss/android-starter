@@ -11,7 +11,28 @@ This project follows a clean, modular architecture with the following modules:
 - **`domain`** - Business logic and use cases
 - **`data`** - Data sources, repositories, and data management
 
-### Setup Script
+## 🚀 Quick Start
+
+### Option 1: Use template and setup via workflow
+1. Click the button **`"Use this template"`** and create new repository
+
+<img width="171" height="101" alt="image" src="https://github.com/user-attachments/assets/7387fc21-1dde-4308-9824-c9340e59ddfa" />
+
+2. Name your repository
+  
+3. Go to the **`"Actions"`** tab
+
+<img width="97" height="42" alt="image" src="https://github.com/user-attachments/assets/203ece94-0762-4f20-971a-c32706ddf026" />
+
+4. Select **`Setup Project`**
+
+<img width="327" height="169" alt="image" src="https://github.com/user-attachments/assets/734286cd-b09e-41c4-94b6-be1ec136bbb4" />
+
+5. Run workflow with your input
+
+<img width="355" height="401" alt="image" src="https://github.com/user-attachments/assets/597aae9e-4bfa-4305-b935-9813603f9c0f" />
+
+### Option 2: Manual Setup
 
 You can run the setup script in two ways:
 

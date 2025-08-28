@@ -1,0 +1,28 @@
+name: Setup Template
+
+on:
+  repository_dispatch:
+    types: [setup-project]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Project
+      run: |
+        chmod +x setup.sh
+        ./setup.sh \
+          --name "${{ github.event.client_payload.project_name }}" \
+          --package "${{ github.event.client_payload.package_name }}" \
+          --sdk "${{ github.event.client_payload.min_sdk }}" \
+          --yes
+    
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Setup project: ${{ github.event.client_payload.project_name }}"
+        git push

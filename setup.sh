@@ -28,9 +28,9 @@ show_help() {
     echo "Options:"
     echo "  -n, --name PROJECT_NAME       Set the project name"
     echo "  -p, --package PACKAGE_NAME    Set the package name (for app module)"
-    echo "  -s, --sdk MIN_SDK            Set the minimum SDK version"
-    echo "  -y, --yes                    Skip confirmation prompt"
-    echo "  -h, --help                   Show this help message"
+    echo "  -s, --sdk MIN_SDK             Set the minimum SDK version"
+    echo "  -y, --yes                     Skip confirmation prompt"
+    echo "  -h, --help                    Show this help message"
     echo ""
     echo "Examples:"
     echo "  $0 --name \"My App\" --package com.company.myapp --sdk 24"
@@ -84,6 +84,12 @@ prompt_with_default() {
     local default="$2"
     local result
 
+    # If non-interactive (CI/CD), just return default
+    if [ ! -t 0 ]; then
+        echo "$default"
+        return
+    fi
+
     read -p "$(echo -e "${YELLOW}$prompt: (${BLUE}$default${YELLOW})${NC} ")" result
 
     if [ -z "$result" ]; then
@@ -113,31 +119,37 @@ validate_sdk_version() {
     return 0
 }
 
-# Get user input
+# Get user input only if not provided via CLI
 echo -e "${GREEN}Please provide the following information:${NC}"
 echo ""
 
 # Project Name
-NEW_PROJECT_NAME=$(prompt_with_default "Project Name" "$DEFAULT_PROJECT_NAME")
+if [ -z "$NEW_PROJECT_NAME" ]; then
+    NEW_PROJECT_NAME=$(prompt_with_default "Project Name" "$DEFAULT_PROJECT_NAME")
+fi
 
 # Package Name with validation
-while true; do
-    NEW_PACKAGE_NAME=$(prompt_with_default "Package Name" "$DEFAULT_PACKAGE_NAME")
-    if validate_package_name "$NEW_PACKAGE_NAME"; then
-        break
-    fi
-done
+if [ -z "$NEW_PACKAGE_NAME" ]; then
+    while true; do
+        NEW_PACKAGE_NAME=$(prompt_with_default "Package Name" "$DEFAULT_PACKAGE_NAME")
+        if validate_package_name "$NEW_PACKAGE_NAME"; then
+            break
+        fi
+    done
+fi
 
 # Extract base package (everything except the last part)
 NEW_BASE_PACKAGE=$(echo "$NEW_PACKAGE_NAME" | sed 's/\.[^.]*$//')
 
 # Minimum SDK with validation
-while true; do
-    NEW_MIN_SDK=$(prompt_with_default "Minimum SDK Version" "$DEFAULT_MIN_SDK")
-    if validate_sdk_version "$NEW_MIN_SDK"; then
-        break
-    fi
-done
+if [ -z "$NEW_MIN_SDK" ]; then
+    while true; do
+        NEW_MIN_SDK=$(prompt_with_default "Minimum SDK Version" "$DEFAULT_MIN_SDK")
+        if validate_sdk_version "$NEW_MIN_SDK"; then
+            break
+        fi
+    done
+fi
 
 echo ""
 echo -e "${BLUE}========================================${NC}"
@@ -152,14 +164,14 @@ echo -e "${GREEN}Data Package:${NC} $NEW_BASE_PACKAGE.data"
 echo -e "${GREEN}Minimum SDK:${NC} $NEW_MIN_SDK"
 echo ""
 
-if [ "$SKIP_CONFIRMATION" = false ]; then
+if [ "$SKIP_CONFIRMATION" = false ] && [ -t 0 ]; then
     read -p "Do you want to proceed with these changes? (y/N): " confirm
     if [[ ! $confirm =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}Setup cancelled.${NC}"
         exit 0
     fi
 else
-    echo -e "${GREEN}Proceeding automatically (--yes flag used)...${NC}"
+    echo -e "${GREEN}Proceeding automatically (--yes flag used or non-interactive)...${NC}"
 fi
 
 echo ""

@@ -28,9 +28,7 @@ prompt_with_default() {
     local default="$2"
     local result
 
-    echo -e "${YELLOW}$prompt${NC}" >&2
-    echo -e "${BLUE}Default: $default${NC}" >&2
-    read -p "Enter value (or press Enter for default): " result
+    read -p "$(echo -e "${YELLOW}$prompt: (${BLUE}$default${YELLOW})${NC} ")" result
 
     if [ -z "$result" ]; then
         echo "$default"
@@ -68,7 +66,7 @@ NEW_PROJECT_NAME=$(prompt_with_default "Project Name:" "$DEFAULT_PROJECT_NAME")
 
 # Package Name with validation
 while true; do
-    NEW_PACKAGE_NAME=$(prompt_with_default "Package Name (for app module):" "$DEFAULT_PACKAGE_NAME")
+    NEW_PACKAGE_NAME=$(prompt_with_default "Package Name:" "$DEFAULT_PACKAGE_NAME")
     if validate_package_name "$NEW_PACKAGE_NAME"; then
         break
     fi

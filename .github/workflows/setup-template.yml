@@ -26,8 +26,8 @@ jobs:
     steps:
       - name: Configure Git
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
         shell: bash
       - uses: actions/checkout@v4
       - name: Setup Project

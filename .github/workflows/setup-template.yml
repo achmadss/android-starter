@@ -36,9 +36,9 @@ jobs:
           
           # Use repository name as default project name if not provided
           REPO_NAME="${{ github.event.repository.name }}"
-          PROJECT_NAME="${{ github.event.inputs.project_name }}"
-          PACKAGE_NAME="${{ github.event.inputs.package_name }}"
-          MIN_SDK="${{ github.event.inputs.min_sdk }}"
+          PROJECT_NAME="${{ inputs.project_name }}"
+          PACKAGE_NAME="${{ inputs.package_name }}"
+          MIN_SDK="${{ inputs.min_sdk }}"
           
           # Use repo name if project name is empty
           if [ -z "$PROJECT_NAME" ]; then

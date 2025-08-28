@@ -24,8 +24,12 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ !github.event.repository.is_template }}
     steps:
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+        shell: bash
       - uses: actions/checkout@v4
-
       - name: Setup Project
         run: |
           chmod +x setup.sh
@@ -51,8 +55,6 @@ jobs:
           fi
           
           ./setup.sh --name "$PROJECT_NAME" --package "$PACKAGE_NAME" --sdk "$MIN_SDK" --yes
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
           git add .
           git commit -m "Setup project: $PROJECT_NAME" || echo "No changes to commit"
           git push -u origin main

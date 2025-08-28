@@ -282,30 +282,53 @@ if [ -d "app" ]; then
 
     # Update package declarations and imports in all source files
     find app/src -name "*.kt" -o -name "*.java" | while read -r file; do
-        # Update the main app package declaration
-        if grep -q "package $PACKAGE_TO_REPLACE" "$file" 2>/dev/null; then
-            echo "  Updating package declaration in: $file (from $PACKAGE_TO_REPLACE to $NEW_PACKAGE_NAME)"
-            update_file "$file" "package $PACKAGE_TO_REPLACE" "package $NEW_PACKAGE_NAME"
+        echo "  Processing file: $file"
+
+        # Show what imports currently exist in the file for debugging
+        if grep -q "import.*$PACKAGE_TO_REPLACE" "$file" 2>/dev/null; then
+            echo "    Found imports to update:"
+            grep "import.*$PACKAGE_TO_REPLACE" "$file" | head -5
         fi
 
-        # Handle sub-packages (e.g., dev.achmad.androidstarter.ui -> dev.achmad.comuline.ui)
-        if [ -n "$ACTUAL_CURRENT_PACKAGE" ]; then
-            # Update sub-packages in package declarations
-            if grep -q "package $ACTUAL_CURRENT_PACKAGE\." "$file" 2>/dev/null; then
-                echo "  Updating sub-package declaration in: $file"
-                update_file "$file" "package $ACTUAL_CURRENT_PACKAGE\." "package $NEW_PACKAGE_NAME."
-            fi
+        # Update package declarations
+        if grep -q "^package $PACKAGE_TO_REPLACE" "$file" 2>/dev/null; then
+            echo "    Updating package declaration: $PACKAGE_TO_REPLACE -> $NEW_PACKAGE_NAME"
+            update_file "$file" "^package $PACKAGE_TO_REPLACE" "package $NEW_PACKAGE_NAME"
+        fi
 
-            # Update imports that reference the old app package
-            if grep -q "import $ACTUAL_CURRENT_PACKAGE" "$file" 2>/dev/null; then
-                echo "  Updating imports in: $file (from $ACTUAL_CURRENT_PACKAGE to $NEW_PACKAGE_NAME)"
-                update_file "$file" "import $ACTUAL_CURRENT_PACKAGE" "import $NEW_PACKAGE_NAME"
-                update_file "$file" "import $ACTUAL_CURRENT_PACKAGE\." "import $NEW_PACKAGE_NAME."
+        if grep -q "^package $PACKAGE_TO_REPLACE\." "$file" 2>/dev/null; then
+            echo "    Updating sub-package declaration"
+            update_file "$file" "^package $PACKAGE_TO_REPLACE\." "package $NEW_PACKAGE_NAME."
+        fi
+
+        # Update import statements - handle both exact package and sub-packages
+        if [ -n "$PACKAGE_TO_REPLACE" ]; then
+            # Replace imports that start with the old app package
+            if grep -q "import $PACKAGE_TO_REPLACE" "$file" 2>/dev/null; then
+                echo "    Updating imports: $PACKAGE_TO_REPLACE -> $NEW_PACKAGE_NAME"
+                # Use a more explicit sed command
+                if [[ "$OSTYPE" == "darwin"* ]]; then
+                    # macOS
+                    sed -i '' "s|import $PACKAGE_TO_REPLACE|import $NEW_PACKAGE_NAME|g" "$file"
+                    sed -i '' "s|import $PACKAGE_TO_REPLACE\.|import $NEW_PACKAGE_NAME.|g" "$file"
+                else
+                    # Linux
+                    sed -i "s|import $PACKAGE_TO_REPLACE|import $NEW_PACKAGE_NAME|g" "$file"
+                    sed -i "s|import $PACKAGE_TO_REPLACE\.|import $NEW_PACKAGE_NAME.|g" "$file"
+                fi
             fi
         fi
 
-        # Update imports for other modules (core, domain, data)
-        update_imports_in_file "$file" "$CURRENT_BASE_PACKAGE" "$NEW_BASE_PACKAGE"
+        # Update imports for other modules (core, domain, data) if they exist
+        if grep -q "import $CURRENT_BASE_PACKAGE" "$file" 2>/dev/null; then
+            echo "    Updating module imports: $CURRENT_BASE_PACKAGE -> $NEW_BASE_PACKAGE"
+            update_imports_in_file "$file" "$CURRENT_BASE_PACKAGE" "$NEW_BASE_PACKAGE"
+        fi
+
+        # Show what the file looks like after updates for debugging
+        echo "    After update, imports are:"
+        grep "^import" "$file" | head -5 || echo "    No imports found"
+        echo ""
     done
 
     # Reorganize directory structure using the actual detected package

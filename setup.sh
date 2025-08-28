@@ -163,20 +163,34 @@ reorganize_source_files() {
             local new_dir="$src_dir/$new_package_path"
 
             if [ -d "$old_dir" ]; then
-                echo "  Moving $old_dir to $new_dir"
+                echo "  Processing $old_dir"
 
                 # Create new directory structure
-                mkdir -p "$(dirname "$new_dir")"
+                mkdir -p "$new_dir"
 
-                # Move the directory
-                mv "$old_dir" "$new_dir"
+                # Move all files and subdirectories from old to new location
+                find "$old_dir" -mindepth 1 -maxdepth 1 | while read -r item; do
+                    if [ -e "$item" ]; then
+                        echo "    Moving $(basename "$item") to $new_dir/"
+                        mv "$item" "$new_dir/"
+                    fi
+                done
 
-                # Remove empty parent directories
+                # Remove the old directory if it's empty
+                if [ -d "$old_dir" ] && [ -z "$(ls -A "$old_dir")" ]; then
+                    rmdir "$old_dir"
+                    echo "    Removed empty directory: $old_dir"
+                fi
+
+                # Clean up empty parent directories
                 local parent_dir="$(dirname "$old_dir")"
                 while [ "$parent_dir" != "$src_dir" ] && [ -d "$parent_dir" ] && [ -z "$(ls -A "$parent_dir")" ]; do
+                    echo "    Removing empty parent directory: $parent_dir"
                     rmdir "$parent_dir"
                     parent_dir="$(dirname "$parent_dir")"
                 done
+            else
+                echo "  Directory $old_dir does not exist, skipping..."
             fi
         fi
     done

@@ -282,27 +282,29 @@ if [ -d "app" ]; then
 
     # Update package declarations and imports in all source files
     find app/src -name "*.kt" -o -name "*.java" | while read -r file; do
-        # Update the main app package
+        # Update the main app package declaration
         if grep -q "package $PACKAGE_TO_REPLACE" "$file" 2>/dev/null; then
-            echo "  Updating package in: $file (from $PACKAGE_TO_REPLACE to $NEW_PACKAGE_NAME)"
+            echo "  Updating package declaration in: $file (from $PACKAGE_TO_REPLACE to $NEW_PACKAGE_NAME)"
             update_file "$file" "package $PACKAGE_TO_REPLACE" "package $NEW_PACKAGE_NAME"
         fi
 
-        # Also handle sub-packages (e.g., com.example.androidstarter.ui -> dev.achmad.comuline.ui)
+        # Handle sub-packages (e.g., dev.achmad.androidstarter.ui -> dev.achmad.comuline.ui)
         if [ -n "$ACTUAL_CURRENT_PACKAGE" ]; then
-            # Extract the app name from the current package (last part)
-            CURRENT_APP_NAME=$(echo "$ACTUAL_CURRENT_PACKAGE" | sed 's/.*\.//')
-            # Get base of current package
-            CURRENT_APP_BASE=$(echo "$ACTUAL_CURRENT_PACKAGE" | sed 's/\.[^.]*$//')
+            # Update sub-packages in package declarations
+            if grep -q "package $ACTUAL_CURRENT_PACKAGE\." "$file" 2>/dev/null; then
+                echo "  Updating sub-package declaration in: $file"
+                update_file "$file" "package $ACTUAL_CURRENT_PACKAGE\." "package $NEW_PACKAGE_NAME."
+            fi
 
-            # Update sub-packages
-            if grep -q "package $CURRENT_APP_BASE\.$CURRENT_APP_NAME\." "$file" 2>/dev/null; then
-                echo "  Updating sub-packages in: $file"
-                update_file "$file" "$CURRENT_APP_BASE\.$CURRENT_APP_NAME\." "$NEW_PACKAGE_NAME."
+            # Update imports that reference the old app package
+            if grep -q "import $ACTUAL_CURRENT_PACKAGE" "$file" 2>/dev/null; then
+                echo "  Updating imports in: $file (from $ACTUAL_CURRENT_PACKAGE to $NEW_PACKAGE_NAME)"
+                update_file "$file" "import $ACTUAL_CURRENT_PACKAGE" "import $NEW_PACKAGE_NAME"
+                update_file "$file" "import $ACTUAL_CURRENT_PACKAGE\." "import $NEW_PACKAGE_NAME."
             fi
         fi
 
-        # Update imports
+        # Update imports for other modules (core, domain, data)
         update_imports_in_file "$file" "$CURRENT_BASE_PACKAGE" "$NEW_BASE_PACKAGE"
     done
 

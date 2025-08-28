@@ -2,23 +2,6 @@
 
 A clean, modular Android project template to kickstart your next Android application. This starter template comes with a multi-module architecture and an easy setup script to customize it for your project.
 
-## 📋 Using This Template
-
-### Option 1: Use GitHub Template (Recommended)
-1. Click the **"Use this template"** button at the top of this repository
-2. Create your new repository with your desired name
-3. Clone your new repository
-4. Run the setup script (see [Quick Start](#🚀-quick-start))
-
-### Option 2: Manual Clone
-```bash
-git clone https://github.com/yourusername/android-starter.git your-project-name
-cd your-project-name
-rm -rf .git
-git init
-git remote add origin https://github.com/yourusername/your-project-name.git
-```
-
 ## 🏗️ Architecture
 
 This project follows a clean, modular architecture with the following modules:
@@ -28,16 +11,7 @@ This project follows a clean, modular architecture with the following modules:
 - **`domain`** - Business logic and use cases
 - **`data`** - Data sources, repositories, and data management
 
-## 🚀 Quick Start
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/achmadss/android-starter.git
-cd android-starter
-```
-
-### 2. Run the Setup Script
+### Setup Script
 
 You can run the setup script in two ways:
 
@@ -92,10 +66,6 @@ This will configure your project with:
 - Core module package: `com.company.core`
 - Domain module package: `com.company.domain`
 - Data module package: `com.company.data`
-
-### 3. Open in Android Studio
-
-Open the project in Android Studio, sync gradle and you're good to go.
 
 ## 📁 Project Structure
 

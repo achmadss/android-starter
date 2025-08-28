@@ -177,6 +177,10 @@ fi
 echo ""
 echo -e "${GREEN}Starting project setup...${NC}"
 
+# Sanitize project names for use in theme names (remove spaces)
+SANITIZED_CURRENT_PROJECT_NAME=$(echo "$CURRENT_PROJECT_NAME" | sed 's/ //g')
+SANITIZED_NEW_PROJECT_NAME=$(echo "$NEW_PROJECT_NAME" | sed 's/ //g')
+
 # Function to update files with sed (cross-platform compatible)
 update_file() {
     local file="$1"
@@ -374,6 +378,7 @@ echo -e "${BLUE}4. Updating AndroidManifest.xml files...${NC}"
 if [ -f "app/src/main/AndroidManifest.xml" ]; then
     echo "  Updating app/src/main/AndroidManifest.xml"
     update_file "app/src/main/AndroidManifest.xml" "package=\"$CURRENT_PACKAGE_NAME\"" "package=\"$NEW_PACKAGE_NAME\""
+    update_file "app/src/main/AndroidManifest.xml" "android:theme=\"@style/Theme.$SANITIZED_CURRENT_PROJECT_NAME\"" "android:theme=\"@style/Theme.$SANITIZED_NEW_PROJECT_NAME\""
 fi
 
 # 5. Update source files and reorganize directory structure
@@ -511,6 +516,24 @@ find . -name "proguard-*.pro" -o -name "consumer-rules.pro" | while read -r file
     fi
 done
 
+# 8. Update UI-related resources (strings.xml, themes.xml)
+echo -e "${BLUE}8. Updating UI-related resources...${NC}"
+# Update app_name in strings.xml
+if [ -f "app/src/main/res/values/strings.xml" ]; then
+    echo "  Updating app_name in app/src/main/res/values/strings.xml"
+    update_file "app/src/main/res/values/strings.xml" ">$CURRENT_PROJECT_NAME<" ">$NEW_PROJECT_NAME<"
+fi
+
+# Update theme name in themes.xml files
+for theme_file in "app/src/main/res/values/themes.xml" "app/src/main/res/values-night/themes.xml"; do
+    if [ -f "$theme_file" ]; then
+        echo "  Updating theme name in $theme_file"
+        update_file "$theme_file" "name=\"Theme.$SANITIZED_CURRENT_PROJECT_NAME\"" "name=\"Theme.$SANITIZED_NEW_PROJECT_NAME\""
+        update_file "$theme_file" "parent=\"Theme.$SANITIZED_CURRENT_PROJECT_NAME\"" "parent=\"Theme.$SANITIZED_NEW_PROJECT_NAME\""
+    fi
+done
+
+
 echo ""
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}         Setup Complete!                ${NC}"
@@ -518,6 +541,8 @@ echo -e "${GREEN}========================================${NC}"
 echo ""
 echo -e "${GREEN}Changes made:${NC}"
 echo "✓ Project name updated to: $NEW_PROJECT_NAME"
+echo "✓ App name in strings.xml updated"
+echo "✓ App theme name updated to: Theme.$SANITIZED_NEW_PROJECT_NAME"
 echo "✓ App package updated to: $NEW_PACKAGE_NAME"
 echo "✓ Core module package updated to: $NEW_BASE_PACKAGE.core"
 echo "✓ Domain module package updated to: $NEW_BASE_PACKAGE.domain"

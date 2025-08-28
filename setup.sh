@@ -356,8 +356,12 @@ echo -e "${BLUE}3. Updating package names in build files...${NC}"
 for gradle_file in "app/build.gradle" "app/build.gradle.kts"; do
     if [ -f "$gradle_file" ]; then
         echo "  Updating $gradle_file"
+        # For build.gradle (Groovy)
         update_file "$gradle_file" "applicationId \"$CURRENT_PACKAGE_NAME\"" "applicationId \"$NEW_PACKAGE_NAME\""
         update_file "$gradle_file" "namespace \"$CURRENT_PACKAGE_NAME\"" "namespace \"$NEW_PACKAGE_NAME\""
+
+        # For build.gradle.kts (Kotlin)
+        update_file "$gradle_file" "applicationId = \"$CURRENT_PACKAGE_NAME\"" "applicationId = \"$NEW_PACKAGE_NAME\""
         update_file "$gradle_file" "namespace = \"$CURRENT_PACKAGE_NAME\"" "namespace = \"$NEW_PACKAGE_NAME\""
     fi
 done
@@ -543,7 +547,7 @@ echo -e "${GREEN}Changes made:${NC}"
 echo "✓ Project name updated to: $NEW_PROJECT_NAME"
 echo "✓ App name in strings.xml updated"
 echo "✓ App theme name updated to: Theme.$SANITIZED_NEW_PROJECT_NAME"
-echo "✓ App package updated to: $NEW_PACKAGE_NAME"
+echo "✓ App package and applicationId updated to: $NEW_PACKAGE_NAME"
 echo "✓ Core module package updated to: $NEW_BASE_PACKAGE.core"
 echo "✓ Domain module package updated to: $NEW_BASE_PACKAGE.domain"
 echo "✓ Data module package updated to: $NEW_BASE_PACKAGE.data"

@@ -143,7 +143,59 @@ update_imports_in_file() {
     update_file "$file" "import $old_base." "import $new_base."
 }
 
-# Function to create new directory structure and move files
+# Function to clean up unused package directories
+cleanup_unused_directories() {
+    local module="$1"
+    local new_base_package="$2"
+
+    echo -e "${BLUE}Cleaning up unused directories in $module module...${NC}"
+
+    # Define source directories
+    local src_main="$module/src/main/java"
+    local src_test="$module/src/test/java"
+    local src_android_test="$module/src/androidTest/java"
+
+    # If new package doesn't start with 'com', remove empty 'com' directories
+    if [[ ! "$new_base_package" == com.* ]]; then
+        for src_dir in "$src_main" "$src_test" "$src_android_test"; do
+            if [ -d "$src_dir" ]; then
+                local com_dir="$src_dir/com"
+                if [ -d "$com_dir" ]; then
+                    # Check if com directory is empty (recursively)
+                    if [ -z "$(find "$com_dir" -name "*.kt" -o -name "*.java" 2>/dev/null)" ]; then
+                        echo "  Removing empty com directory: $com_dir"
+                        rm -rf "$com_dir"
+                    else
+                        echo "  Keeping com directory (contains source files): $com_dir"
+                    fi
+                fi
+            fi
+        done
+    fi
+
+    # Similarly, if new package doesn't start with other common prefixes, clean those up too
+    # This handles cases where someone might switch from other base packages
+    local old_base_parts=($(echo "$CURRENT_BASE_PACKAGE" | tr '.' ' '))
+    local new_base_parts=($(echo "$new_base_package" | tr '.' ' '))
+
+    # If the first part of the package changed (e.g., com -> dev), clean up the old one
+    if [ "${old_base_parts[0]}" != "${new_base_parts[0]}" ]; then
+        for src_dir in "$src_main" "$src_test" "$src_android_test"; do
+            if [ -d "$src_dir" ]; then
+                local old_root_dir="$src_dir/${old_base_parts[0]}"
+                if [ -d "$old_root_dir" ]; then
+                    # Check if the old root directory is empty (recursively)
+                    if [ -z "$(find "$old_root_dir" -name "*.kt" -o -name "*.java" 2>/dev/null)" ]; then
+                        echo "  Removing empty ${old_base_parts[0]} directory: $old_root_dir"
+                        rm -rf "$old_root_dir"
+                    else
+                        echo "  Keeping ${old_base_parts[0]} directory (contains source files): $old_root_dir"
+                    fi
+                fi
+            fi
+        done
+    fi
+}
 reorganize_source_files() {
     local module="$1"
     local old_package_path="$2"
@@ -338,6 +390,9 @@ if [ -d "app" ]; then
     else
         reorganize_source_files "app" "$CURRENT_APP_PATH" "$NEW_APP_PATH"
     fi
+
+    # Clean up unused directories
+    cleanup_unused_directories "app" "$NEW_BASE_PACKAGE"
 fi
 
 # Handle other modules (core, domain, data)
@@ -361,6 +416,9 @@ for module in "core" "domain" "data"; do
 
         # Reorganize directory structure
         reorganize_source_files "$module" "$current_module_path" "$new_module_path"
+
+        # Clean up unused directories
+        cleanup_unused_directories "$module" "$NEW_BASE_PACKAGE"
     fi
 done
 

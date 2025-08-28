@@ -29,7 +29,9 @@ jobs:
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
         shell: bash
+
       - uses: actions/checkout@v4
+
       - name: Setup Project
         run: |
           chmod +x setup.sh
@@ -55,6 +57,9 @@ jobs:
           fi
           
           ./setup.sh --name "$PROJECT_NAME" --package "$PACKAGE_NAME" --sdk "$MIN_SDK" --yes
+
+      - name: Commit changes
+        run: |
           git add .
           git commit -m "Setup project: $PROJECT_NAME" || echo "No changes to commit"
           git push -u origin main

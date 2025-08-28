@@ -16,6 +16,9 @@ on:
         required: false
         default: '26'
 
+permissions:
+  contents: write
+
 jobs:
   setup:
     runs-on: ubuntu-latest

@@ -5,15 +5,15 @@ on:
     inputs:
       project_name:
         description: 'Project Name'
-        required: false
+        required: true
         default: ''
       package_name:
         description: 'Package Name (e.g., com.company.myapp)'
-        required: false
+        required: true
         default: ''
       min_sdk:
         description: 'Minimum SDK Version'
-        required: false
+        required: true
         default: '26'
 
 permissions:
@@ -35,28 +35,7 @@ jobs:
       - name: Setup Project
         run: |
           chmod +x setup.sh
-          
-          # Use repository name as default project name if not provided
-          REPO_NAME="${{ github.event.repository.name }}"
-          PROJECT_NAME="${{ inputs.project_name }}"
-          PACKAGE_NAME="${{ inputs.package_name }}"
-          MIN_SDK="${{ inputs.min_sdk }}"
-          
-          # Use repo name if project name is empty
-          if [ -z "$PROJECT_NAME" ]; then
-            PROJECT_NAME="$REPO_NAME"
-          fi
-          
-          # Generate package name from repo name if not provided
-          if [ -z "$PACKAGE_NAME" ]; then
-            OWNER="${{ github.repository_owner }}"
-            # Convert to lowercase and replace hyphens/underscores with dots
-            CLEAN_OWNER=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]' | tr '-_' '.')
-            CLEAN_REPO=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]' | tr '-_' '')
-            PACKAGE_NAME="com.${CLEAN_OWNER}.${CLEAN_REPO}"
-          fi
-          
-          ./setup.sh --name "$PROJECT_NAME" --package "$PACKAGE_NAME" --sdk "$MIN_SDK" --yes
+          ./setup.sh --name "${{ inputs.project_name }}" --package "${{ inputs.package_name }}" --sdk "${{ inputs.min_sdk }}" --yes
 
       - name: Commit changes
         run: |
